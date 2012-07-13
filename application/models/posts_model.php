@@ -40,7 +40,6 @@ class Posts_model extends CI_Model {
         if ($q != null) {
             $this->db->like('posts.title', $q);
             $this->db->or_like('posts.body', $q);
-            
         }
         $this->db->limit($limit, $offset);
         $this->db->where('posts.status', 1);
@@ -67,20 +66,6 @@ class Posts_model extends CI_Model {
         }
     }
 
-    function findPreviousposts($limit = null, $offset = null, $postsIds = null) {
-        $this->db->select('posts.*,categories.name, users.username');
-        $this->db->join('categories', 'categories.id = posts.categories_id');
-        $this->db->join('users', 'users.id = posts.users_id');
-        $this->db->where_not_in('posts.id', $postsIds);
-        $this->db->limit($limit, $offset);
-        $this->db->where('posts.status', 1);
-        $this->db->order_by('id', 'desc');
-        $query = $this->db->get($this->table);
-
-        if ($query->num_rows() > 0) {
-            return $query->result_array();
-        }
-    }
 
     function findOthersInCategory($categories_id, $article_id, $limit = null, $offset = null) {
         $this->db->select('posts.*,categories.name, users.username');
@@ -123,34 +108,41 @@ class Posts_model extends CI_Model {
         return $query->num_rows();
     }
 
-    function create() {
-        $data = array(
-            'title' => $this->input->post('title'),
-            'permalink' => url_title($this->input->post('title')),
-            'body' => $this->input->post('body'),
-            'categories_id' => $this->input->post('categories_id'),
-            'status' => $this->input->post('status'),
-            'users_id' => $this->session->userdata('id'),
-            'created' => date("Y-m-d H:i:s")
-        );
-
-        $this->db->insert($this->table, $data);
+    function create($params = array()) {
+        if (empty($params)) {
+            $data = array(
+                'title' => $this->input->post('title'),
+                'permalink' => url_title($this->input->post('title')),
+                'body' => $this->input->post('body'),
+                'categories_id' => $this->input->post('categories_id'),
+                'status' => $this->input->post('status'),
+                'users_id' => $this->session->userdata('id'),
+                'created' => date("Y-m-d H:i:s")
+            );
+            $this->db->insert($this->table, $data);
+        } else {
+            $this->db->insert($this->table, $params);
+        }
     }
 
-    function update($id) {
+    function update($id, $params) {
+        if (empty($params)) {
+            $data = array(
+                'title' => $this->input->post('title'),
+                'permalink' => url_title($this->input->post('title')),
+                'body' => $this->input->post('body'),
+                'categories_id' => $this->input->post('categories_id'),
+                'status' => $this->input->post('status'),
+                'users_id' => $this->session->userdata('id'),
+                'modified' => date("Y-m-d H:i:s")
+            );
 
-        $data = array(
-            'title' => $this->input->post('title'),
-            'permalink' => url_title($this->input->post('title')),
-            'body' => $this->input->post('body'),
-            'categories_id' => $this->input->post('categories_id'),
-            'status' => $this->input->post('status'),
-            'users_id' => $this->session->userdata('id'),
-            'modified' => date("Y-m-d H:i:s")
-        );
-
-        $this->db->where('id', $id);
-        $this->db->update($this->table, $data);
+            $this->db->where('id', $id);
+            $this->db->update($this->table, $data);
+        } else {
+            $this->db->where('id', $id);
+            $this->db->update($this->table, $params);
+        }
     }
 
     function destroy($id) {

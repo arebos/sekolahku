@@ -17,6 +17,7 @@
                 <td>
                     <?php echo anchor('admin/pages', 'Pages') ?> | 
                     <?php echo anchor('admin/categories', 'Categories') ?> | 
+                    <?php echo anchor('admin/posts', 'Posts') ?> | 
                     <?php echo anchor('users/logout', 'Logout') ?> 
                     <hr/>
                 </td>
